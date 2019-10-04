@@ -1,0 +1,69 @@
+extends layout
+
+block content
+	a(href='https://newsnotifier.halx.tk/kakao_apis/kakao_login')
+		img(src="https://newsnotifier.halx.tk/images/kakao_account_login_btn_medium_narrow.png")
+
+	p
+		button(
+			id='call_init_session'
+			onclick='init_session()'
+		) 세션 초기화
+
+	if req.query
+		p code
+		br
+		p #{req.query.code}
+		p error
+		br
+		p #{req.body.error}
+		p #{req.body}
+	
+		br
+		br
+
+	p session
+	if session
+		p session
+			p #{session.access_token}
+			p #{session.refresh_token}
+
+	p text_msg
+	form(action='https://newsnotifier.halx.tk/kakao_apis/kakao_talk_memo' method='post')
+		p
+			input(type='text' name='text_msg')
+		p
+			input(type='submit' value='ok')
+
+	if req.body.error
+		script.
+			var error_msg = '#{req.body.error}';
+			if(error_msg)
+			{
+				alert(error_msg);
+			}
+
+	script.
+		function init_session(){
+			var xmlhttp;
+			if(window.XMLHttpRequest){
+				xmlhttp = new XMLHttpRequest();
+			}
+			else{
+				xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+			}
+
+			xmlhttp.onreadystatechange = function(){
+				if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+					var data = JSON.parse(xmlhttp.response);
+
+					console.log(data);
+					if(data.msg){
+						alert(data.msg);
+					}
+				}
+			}
+
+			xmlhttp.open('GET', 'https://newsnotifier.halx.tk/apis/init_session', true);
+			xmlhttp.send();
+		}

@@ -1,0 +1,137 @@
+extends layout
+
+block content
+	p 텔레그램 알림channel  링크
+		br
+		a(id='chat_invite_link')
+	p
+		input(
+			type='text'
+			name='querys'
+			id='input_querys'
+		)
+		br
+		input(
+			type='text'
+			name='search_term_num'
+		)
+		br
+		input(
+			type='text'
+			name='period_word'
+		)
+
+		button(onclick='start_newsnotifier()') 실행
+
+	p
+		button(onclick='stop_newsnotifier()') 중지
+
+	script.
+		document.addEventListener('DOMContentLoaded', function(){
+			console.log('document ready');
+			get_chat_invite_link('halxNewsNotifierBot','testAlarm');
+		});
+		
+		function get_chat_invite_link(bot_name,chat_name){
+
+			var xmlhttp;
+			if(window.XMLHttpRequest){
+				xmlhttp = new XMLHttpRequest();
+			}
+			else{
+				xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			if(!xmlhttp){
+				alert('ajax콜을 수행할 수 없는 브라우저 입니다.\n 서비스가 제대로 작동하지 않을 수 있습니다.');
+				return;
+			}		
+			
+			xmlhttp.onreadystatechange = function(){
+				if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+					var result_obj = JSON.parse(xmlhttp.response);
+					
+					var invite_link_elem = document.getElementById('chat_invite_link');
+					invite_link_elem.text = result_obj.invite_link;
+					invite_link_elem.href = result_obj.invite_link;
+
+					if(result_obj.msg){
+						alert(result_obj.msg);
+					}
+				}
+			}
+				
+			xmlhttp.open('POST', 'https://newsnotifier.halx.tk/telegram_apis/get_chat_invite_link');
+			xmlhttp.setRequestHeader('XMLHttpRequest', true);
+			xmlhttp.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+
+			var post_data = {
+				bot_name:bot_name,
+				chat_name:chat_name
+			};
+
+			console.log(post_data);			
+
+			xmlhttp.send(JSON.stringify(post_data));
+		} 
+
+
+		function start_newsnotifier()
+		{
+			var xmlhttp;
+			if(window.XMLHttpRequest){
+				xmlhttp = new XMLHttpRequest();
+			}else{
+				xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			if(!xmlhttp){
+				alert('ajax콜을 수행할 수 없는 브라우저 입니다.\n 서비스가 제대로 작동하지 않을 수 있습니다.');
+				return;
+			}
+			
+			xmlhttp.onreadystatechange = function() {
+				if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+					var result_obj = JSON.parse(xmlhttp.response);
+					alert(result_obj.msg);
+				}
+			}
+
+			xmlhttp.open('POST','https://newsnotifier.halx.tk/apis/execute_search_naver_news_term');
+			xmlhttp.setRequestHeader('XMLHttpRequest', true);
+			xmlhttp.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+			
+			var input_query = document.getElementById('input_query');
+			var input_search_term_num = document.getElementById('input_search_term_num');
+			var input_period_word = document.getElementById('input_period_word');
+			var post_data = {
+				querys:input_query.value,
+				search_term_num:input_search_term_num.value,
+				period_word:input_period_word.vale
+			}
+
+			xmlhttp.send(JSON.stringify(post_data));
+		}
+
+		function stop_newsnotifier()
+		{
+			var xmlhttp;
+			if(window.XMLHttpRequest){
+				xmlhttp = new XMLHttpRequest();
+			}else{
+				xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			if(!xmlhttp){
+				alert('ajax콜을 수행할 수 없는 브라우저 입니다.\n 서비스가 제대로 작동하지 않을 수 있습니다.');
+				return;
+			}
+			
+			xmlhttp.onreadystatechange = function() {
+				if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+					var result_obj = JSON.parse(xmlhttp.response);
+					console.log(result_obj);
+				}
+			}
+
+			xmlhttp.open('POST','https://newsnotifier.halx.tk/apis/stop_search_naver_news_term');
+
+			xmlhttp.send();
+		}
